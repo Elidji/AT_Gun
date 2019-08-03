@@ -1,0 +1,42 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "ATGAntiTankGun.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+
+// Sets default values
+AATGAntiTankGun::AATGAntiTankGun()
+{
+ 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	// Create a CameraComponent	
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	CameraComponent->SetupAttachment(GetCapsuleComponent());
+	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
+	CameraComponent->bUsePawnControlRotation = true;
+
+}
+
+// Called when the game starts or when spawned
+void AATGAntiTankGun::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void AATGAntiTankGun::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+// Called to bind functionality to input
+void AATGAntiTankGun::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
