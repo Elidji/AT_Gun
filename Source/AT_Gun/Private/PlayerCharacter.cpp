@@ -3,12 +3,20 @@
 
 #include "PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/InputComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Create a CameraComponent	
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	CameraComponent->SetupAttachment(GetCapsuleComponent());
+	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
+	CameraComponent->bUsePawnControlRotation = true;
 }
 
 // Called when the game starts or when spawned
@@ -25,10 +33,34 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
+// Called to bind functionality to inputs
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
+void APlayerCharacter::MoveForward(float Value)
+{
+	if (Value != 0.0f)
+	{
+		// add movement in that direction
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
+}
+
+void APlayerCharacter::MoveRight(float Value)
+{
+	if (Value != 0.0f)
+	{
+		// add movement in that direction
+		AddMovementInput(GetActorRightVector(), Value);
+	}
+}
