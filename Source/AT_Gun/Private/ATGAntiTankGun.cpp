@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
+#include "ATGAntiTankShell.h"
 
 // Sets default values
 AATGAntiTankGun::AATGAntiTankGun()
@@ -58,7 +59,30 @@ void AATGAntiTankGun::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 // Fire the gun
 void AATGAntiTankGun::Fire()
 {
-	
+	// Si un projectil a été défini.
+
+	if (ProjectileClass)
+	{
+		UWorld* World = GetWorld();
+
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+		ActorSpawnParams.Instigator = this;
+
+		FVector SpawnLocation = ArrowCanonDirection->GetComponentLocation();
+
+		FRotator SpawnRotation = ArrowCanonDirection->GetComponentRotation();
+
+		if (World)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Tentative de spawn obus"));
+			World->SpawnActor<AATGAntiTankShell>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Type de projectile non défini !"));
+	}
 
 }
 

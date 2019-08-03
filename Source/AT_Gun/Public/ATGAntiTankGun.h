@@ -9,6 +9,7 @@
 class UCameraComponent;
 class UStaticMeshComponent; 
 class UArrowComponent;
+class AATGAntiTankShell;
 
 UCLASS()
 class AT_GUN_API AATGAntiTankGun : public ACharacter
@@ -31,6 +32,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ArrowComponent")
 	UArrowComponent* ArrowCanonDirection;
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AATGAntiTankShell> ProjectileClass;
 
 protected:
 	// Called when the game starts or when spawned
