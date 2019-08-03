@@ -46,7 +46,16 @@ void AATGAntiTankGun::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AATGAntiTankGun::Fire);
+
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+}
+
+// Fire the gun
+void AATGAntiTankGun::Fire()
+{
+	
+
 }
 
