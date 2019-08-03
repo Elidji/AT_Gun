@@ -7,6 +7,7 @@
 #include "ATGAntiTankGun.generated.h"
 
 class UCameraComponent;
+class UStaticMeshComponent;
 
 UCLASS()
 class AT_GUN_API AATGAntiTankGun : public ACharacter
@@ -20,6 +21,12 @@ public:
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MeshComponent")
+	UStaticMeshComponent* MeshCompProtection;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MeshComponent")
+	UStaticMeshComponent* MeshCompCanon;
 
 protected:
 	// Called when the game starts or when spawned

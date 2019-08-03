@@ -4,6 +4,8 @@
 #include "ATGAntiTankGun.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AATGAntiTankGun::AATGAntiTankGun()
@@ -16,6 +18,12 @@ AATGAntiTankGun::AATGAntiTankGun()
 	CameraComponent->SetupAttachment(GetCapsuleComponent());
 	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
+
+	MeshCompProtection = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompProtection"));
+	MeshCompProtection->SetupAttachment(CameraComponent);
+
+	MeshCompCanon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompCanon"));
+	MeshCompCanon->SetupAttachment(CameraComponent);
 
 }
 
@@ -38,5 +46,7 @@ void AATGAntiTankGun::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
