@@ -66,11 +66,10 @@ void AATGAntiTankGun::Fire()
 		UWorld* World = GetWorld();
 
 		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 		ActorSpawnParams.Instigator = this;
 
 		FVector SpawnLocation = ArrowCanonDirection->GetComponentLocation();
-
 		FRotator SpawnRotation = ArrowCanonDirection->GetComponentRotation();
 
 		if (World)
