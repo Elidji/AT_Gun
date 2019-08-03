@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/ArrowComponent.h"
 
 // Sets default values
 AATGAntiTankGun::AATGAntiTankGun()
@@ -25,6 +26,8 @@ AATGAntiTankGun::AATGAntiTankGun()
 	MeshCompCanon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompCanon"));
 	MeshCompCanon->SetupAttachment(CameraComponent);
 
+	ArrowCanonDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowCanonDirection"));
+	ArrowCanonDirection->SetupAttachment(MeshCompCanon);
 }
 
 // Called when the game starts or when spawned
