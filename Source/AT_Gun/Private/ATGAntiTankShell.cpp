@@ -30,6 +30,9 @@ AATGAntiTankShell::AATGAntiTankShell()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+
+	// Die after 3 seconds by default
+	InitialLifeSpan = 3.0f;
 }
 
 // Called when the game starts or when spawned
@@ -48,5 +51,14 @@ void AATGAntiTankShell::Tick(float DeltaTime)
 
 void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Tentative Creation impulse"));
+
+	// Only add impulse and destroy projectile if we hit a physics
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Création impulse"));
+		//OtherComp->AddImpulseAtLocation(GetVelocity() * 10.0f, GetActorLocation());
+		Destroy();
+	}
 }
 
