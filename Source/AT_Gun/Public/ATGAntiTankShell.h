@@ -7,6 +7,8 @@
 #include "ATGAntiTankShell.generated.h"
 
 class UStaticMeshComponent;
+class USphereComponent;
+class UProjectileMovementComponent;
 
 UCLASS()
 class AT_GUN_API AATGAntiTankShell : public AActor
@@ -20,6 +22,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MeshComponent")
 	UStaticMeshComponent* MeshComp;
 
+	/** Sphere collision component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile")
+	USphereComponent* CollisionComp;
+
+	/** Projectile movement component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UProjectileMovementComponent* ProjectileMovement;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -27,5 +37,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	/** called when projectile hits something */
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 };
