@@ -33,6 +33,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ArrowComponent")
 	UArrowComponent* ArrowCanonDirection;
 
+private:
+
+	bool bCanFire;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Timer")
+	FTimerHandle ReloadTimeHandle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Timer")
+	float ReloadTime;
+
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AATGAntiTankShell> ProjectileClass;
@@ -51,4 +61,5 @@ public:
 	// Fire the gun
 	void Fire();
 
+	void SetCanFireTrue();
 };

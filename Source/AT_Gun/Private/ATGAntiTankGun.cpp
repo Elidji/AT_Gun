@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "ATGAntiTankShell.h"
+#include "Public/TimerManager.h"
 
 // Sets default values
 AATGAntiTankGun::AATGAntiTankGun()
@@ -29,6 +30,10 @@ AATGAntiTankGun::AATGAntiTankGun()
 
 	ArrowCanonDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowCanonDirection"));
 	ArrowCanonDirection->SetupAttachment(MeshCompCanon);
+
+	bCanFire = true;
+
+	ReloadTime = 2.f;
 }
 
 // Called when the game starts or when spawned
@@ -59,8 +64,7 @@ void AATGAntiTankGun::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 // Fire the gun
 void AATGAntiTankGun::Fire()
 {
-	// Si un projectil a été défini.
-
+	// Si un projectile a été défini.
 	if (ProjectileClass)
 	{
 		UWorld* World = GetWorld();
@@ -72,10 +76,14 @@ void AATGAntiTankGun::Fire()
 		FVector SpawnLocation = ArrowCanonDirection->GetComponentLocation();
 		FRotator SpawnRotation = ArrowCanonDirection->GetComponentRotation();
 
-		if (World)
+		if (World && bCanFire)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Tentative de spawn obus"));
 			World->SpawnActor<AATGAntiTankShell>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+			// Une fois que l'obus a été tiré on démarre un timer pour le temps de rechargement.
+			World->GetTimerManager().SetTimer(ReloadTimeHandle, this, &AATGAntiTankGun::SetCanFireTrue, ReloadTime);
+			bCanFire = false;
 		}
 	}
 	else
@@ -83,5 +91,10 @@ void AATGAntiTankGun::Fire()
 		UE_LOG(LogTemp, Warning, TEXT("Type de projectile non défini !"));
 	}
 
+}
+
+void AATGAntiTankGun::SetCanFireTrue()
+{
+	bCanFire = true;
 }
 
