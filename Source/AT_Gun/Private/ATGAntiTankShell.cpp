@@ -15,8 +15,8 @@ AATGAntiTankShell::AATGAntiTankShell()
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
-	CollisionComp->SetCollisionProfileName("Projectile");
-	CollisionComp->OnComponentHit.AddDynamic(this, &AATGAntiTankShell::OnHit);	// set up a notification for when this component hits something blocking
+	//CollisionComp->SetCollisionProfileName("Projectile");
+	//CollisionComp->OnComponentHit.AddDynamic(this, &AATGAntiTankShell::OnHit);	// set up a notification for when this component hits something blocking
 	RootComponent = CollisionComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
@@ -54,11 +54,11 @@ void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	//UE_LOG(LogTemp, Warning, TEXT("Tentative Creation impulse"));
 
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Création impulse"));
+		UE_LOG(LogTemp, Warning, TEXT("Creation impulse"));
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 10.0f, GetActorLocation());
-		Destroy();
+		//Destroy();
 	}
 }
 

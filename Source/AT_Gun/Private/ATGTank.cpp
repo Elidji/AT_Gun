@@ -6,36 +6,34 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
-
 // Sets default values
 AATGTank::AATGTank()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	MeshCompChassi = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompChassi"));
-	RootComponent = MeshCompChassi;
-
 	BoxCompChassi = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCompChassi"));
-	BoxCompChassi->SetupAttachment(MeshCompChassi);
-	BoxCompChassi->OnComponentHit.AddDynamic(this, &AATGTank::OnHitChassi);
+	RootComponent = BoxCompChassi;
 
-	MeshCompTourelle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompTourelle"));
-	MeshCompTourelle->SetupAttachment(MeshCompChassi);
+	MeshCompChassi = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompChassi"));
+	MeshCompChassi->SetupAttachment(BoxCompChassi);
 
 	BoxCompTourelle = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCompTourelle"));
-	BoxCompTourelle->SetupAttachment(MeshCompTourelle);
+	BoxCompTourelle->SetupAttachment(BoxCompChassi);
 	BoxCompTourelle->OnComponentHit.AddDynamic(this, &AATGTank::OnHitTourelle);
 
-	MeshCompCannon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompCanon"));
-	MeshCompCannon->SetupAttachment(MeshCompTourelle);
+	MeshCompTourelle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompTourelle"));
+	MeshCompTourelle->SetupAttachment(BoxCompTourelle);
 
 	CapsCompCannon = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsCompCannon"));
-	CapsCompCannon->SetupAttachment(MeshCompCannon);
+	CapsCompCannon->SetupAttachment(BoxCompTourelle);
 	CapsCompCannon->OnComponentHit.AddDynamic(this, &AATGTank::OnHitCannon);
 
+	MeshCompCannon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompCanon"));
+	MeshCompCannon->SetupAttachment(CapsCompCannon);
+
 	ArrowCanonDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowCanonDirection"));
-	ArrowCanonDirection->SetupAttachment(MeshCompCannon);
+	ArrowCanonDirection->SetupAttachment(CapsCompCannon);
 
 	VieChassi = 0.f;
 	VieTourelle = 0.f;
@@ -46,6 +44,8 @@ AATGTank::AATGTank()
 void AATGTank::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BoxCompChassi->OnComponentHit.AddDynamic(this, &AATGTank::OnHitChassi);
 	
 }
 
