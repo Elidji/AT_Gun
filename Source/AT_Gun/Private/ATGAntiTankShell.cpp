@@ -20,7 +20,7 @@ AATGAntiTankShell::AATGAntiTankShell()
 	RootComponent = CollisionComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetSimulatePhysics(true);
+	//MeshComp->SetSimulatePhysics(true);
 	MeshComp->SetupAttachment(GetRootComponent());
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement
