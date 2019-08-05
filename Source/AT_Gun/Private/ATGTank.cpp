@@ -4,6 +4,8 @@
 #include "ATGTank.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AATGTank::AATGTank()
@@ -14,14 +16,30 @@ AATGTank::AATGTank()
 	MeshCompChassi = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompChassi"));
 	RootComponent = MeshCompChassi;
 
+	BoxCompChassi = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCompChassi"));
+	BoxCompChassi->SetupAttachment(MeshCompChassi);
+	BoxCompChassi->OnComponentHit.AddDynamic(this, &AATGTank::OnHitChassi);
+
 	MeshCompTourelle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompTourelle"));
-	MeshCompTourelle->SetupAttachment(MeshCompTourelle);
+	MeshCompTourelle->SetupAttachment(MeshCompChassi);
+
+	BoxCompTourelle = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCompTourelle"));
+	BoxCompTourelle->SetupAttachment(MeshCompTourelle);
+	BoxCompTourelle->OnComponentHit.AddDynamic(this, &AATGTank::OnHitTourelle);
 
 	MeshCompCannon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompCanon"));
-	MeshCompCannon->SetupAttachment(GetRootComponent());
+	MeshCompCannon->SetupAttachment(MeshCompTourelle);
+
+	CapsCompCannon = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsCompCannon"));
+	CapsCompCannon->SetupAttachment(MeshCompCannon);
+	CapsCompCannon->OnComponentHit.AddDynamic(this, &AATGTank::OnHitCannon);
 
 	ArrowCanonDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowCanonDirection"));
 	ArrowCanonDirection->SetupAttachment(MeshCompCannon);
+
+	VieChassi = 0.f;
+	VieTourelle = 0.f;
+	VieCannon = 0.f;
 }
 
 // Called when the game starts or when spawned
@@ -45,3 +63,20 @@ void AATGTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+// Appellé quand le chassi est touché
+void AATGTank::OnHitChassi(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Chassi touche"));
+}
+
+// Appellé quand la tourelle est touchée
+void AATGTank::OnHitTourelle(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tourelle touchee"));
+}
+
+// Appellé quand le cannon est touché
+void AATGTank::OnHitCannon(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Cannon touche"));
+}

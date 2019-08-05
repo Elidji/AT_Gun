@@ -51,7 +51,7 @@ void AATGAntiTankShell::Tick(float DeltaTime)
 
 void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tentative Creation impulse"));
+	//UE_LOG(LogTemp, Warning, TEXT("Tentative Creation impulse"));
 
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())

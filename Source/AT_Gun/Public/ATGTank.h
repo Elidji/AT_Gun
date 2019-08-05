@@ -8,6 +8,8 @@
 
 class UStaticMeshComponent;
 class UArrowComponent;
+class UBoxComponent;
+class UCapsuleComponent;
 
 UCLASS()
 class AT_GUN_API AATGTank : public APawn
@@ -30,6 +32,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ArrowComponent")
 	UArrowComponent* ArrowCanonDirection;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CollisionShape")
+	UBoxComponent* BoxCompChassi;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CollisionShape")
+	UBoxComponent* BoxCompTourelle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CollisionShape")
+	UCapsuleComponent* CapsCompCannon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vie")
+	float VieChassi;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vie")
+	float VieTourelle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vie")
+	float VieCannon;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,5 +60,11 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void OnHitChassi(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	void OnHitTourelle(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	void OnHitCannon(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 };
