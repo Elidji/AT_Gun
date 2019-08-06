@@ -5,6 +5,11 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Engine/EngineTypes.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "ATGTank.h"
+#include "GameFramework/DamageType.h"
 
 // Sets default values
 AATGAntiTankShell::AATGAntiTankShell()
@@ -56,9 +61,23 @@ void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Creation impulse"));
-		//OtherComp->AddImpulseAtLocation(GetVelocity() * 10.0f, GetActorLocation());
-		//Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("L'obus a touché quelque chose"));
+
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (PlayerController)
+		{
+			AATGTank* Tank = Cast<AATGTank>(OtherActor);
+			if (Tank)
+			{
+				TSubclassOf<UDamageType> const DamageTypeShell = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+				const float DamageAmount = 60.0f;
+				FPointDamageEvent DamageEvent(DamageAmount, Hit, NormalImpulse, DamageTypeShell);
+
+				Tank->TakeDamage(DamageAmount, DamageEvent, PlayerController, this);
+			}
+		}
+		
+		Destroy();
 	}
 }
 

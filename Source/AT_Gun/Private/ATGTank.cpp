@@ -6,6 +6,9 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/DamageType.h"
+#include "Engine/EngineTypes.h"
+
 // Sets default values
 AATGTank::AATGTank()
 {
@@ -79,4 +82,25 @@ void AATGTank::OnHitTourelle(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 void AATGTank::OnHitCannon(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Cannon touche"));
+}
+
+/// This is the actor damage handler.   
+float AATGTank::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
+{
+	// Call the base class - this will tell us how much damage to apply  
+    const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		FPointDamageEvent* PointDamageEvent = (FPointDamageEvent*)& DamageEvent;
+		FHitResult HitResult = PointDamageEvent->HitInfo;
+		if (ActualDamage > 0.f)
+			VieChassi -= ActualDamage;
+		// If the damage depletes our health set our lifespan to zero - which will destroy the actor  
+		if (VieChassi <= 0.f)
+		{
+			SetLifeSpan(0.001f);
+		}
+	}
+
+	return ActualDamage;
 }
