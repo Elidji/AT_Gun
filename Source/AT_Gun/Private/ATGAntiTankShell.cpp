@@ -71,7 +71,8 @@ void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 			{
 				TSubclassOf<UDamageType> const DamageTypeShell = TSubclassOf<UDamageType>(UDamageType::StaticClass());
 				const float DamageAmount = 60.0f;
-				FPointDamageEvent DamageEvent(DamageAmount, Hit, NormalImpulse, DamageTypeShell);
+				FVector HitOrientation = GetActorForwardVector();
+				FPointDamageEvent DamageEvent(DamageAmount, Hit, HitOrientation, DamageTypeShell);
 
 				Tank->TakeDamage(DamageAmount, DamageEvent, PlayerController, this);
 			}

@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/DamageType.h"
 #include "Engine/EngineTypes.h"
+#include "Components/PrimitiveComponent.h"
 
 // Sets default values
 AATGTank::AATGTank()
@@ -69,7 +70,7 @@ void AATGTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 // Appellé quand le chassi est touché
 void AATGTank::OnHitChassi(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Chassi touche"));
+	//UE_LOG(LogTemp, Warning, TEXT("Chassi touche"));
 }
 
 // Appellé quand la tourelle est touchée
@@ -91,14 +92,52 @@ float AATGTank::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
     const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
 	{
+		// Récupération des info du hit
 		FPointDamageEvent* PointDamageEvent = (FPointDamageEvent*)& DamageEvent;
 		FHitResult HitResult = PointDamageEvent->HitInfo;
-		if (ActualDamage > 0.f)
-			VieChassi -= ActualDamage;
-		// If the damage depletes our health set our lifespan to zero - which will destroy the actor  
-		if (VieChassi <= 0.f)
+
+		// Récupération du component touché
+		UPrimitiveComponent* ComponentHit = HitResult.GetComponent();
+
+		if (ComponentHit == BoxCompChassi)
 		{
-			SetLifeSpan(0.001f);
+			if (ActualDamage > 0.f)
+			{
+				VieChassi -= ActualDamage;
+			}
+			// If the damage depletes our health set our lifespan to zero - which will destroy the actor  
+			if (VieChassi <= 0.f)
+			{
+				SetLifeSpan(0.001f);
+			}
+		}
+		else if (ComponentHit == BoxCompTourelle)
+		{
+			if (ActualDamage > 0.f)
+			{
+				VieTourelle -= ActualDamage;
+			}
+			// If the damage depletes our health set our lifespan to zero - which will destroy the component  
+			if (VieTourelle <= 0.f)
+			{
+				MeshCompTourelle->DestroyComponent(false);
+				BoxCompTourelle->DestroyComponent(false);
+				MeshCompCannon->DestroyComponent(false);
+				CapsCompCannon->DestroyComponent(false);
+			}
+
+		}
+		else if (ComponentHit == CapsCompCannon)
+		{
+			if (ActualDamage > 0.f)
+			{
+				VieCannon -= ActualDamage;
+			}
+			if (VieCannon <= 0.f)
+			{
+				MeshCompCannon->DestroyComponent(false);
+				CapsCompCannon->DestroyComponent(false);
+			}
 		}
 	}
 
