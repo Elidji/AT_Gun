@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class USphereComponent;
 class UProjectileMovementComponent;
+class UParticleSystem;
 
 UCLASS()
 class AT_GUN_API AATGAntiTankShell : public AActor
@@ -30,6 +31,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovement;
 
+	/** Effet d'explosion */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
+	UParticleSystem* ExplosionParticule;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,5 +46,4 @@ public:
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 };

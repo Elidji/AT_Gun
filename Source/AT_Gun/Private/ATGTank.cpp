@@ -9,6 +9,7 @@
 #include "GameFramework/DamageType.h"
 #include "Engine/EngineTypes.h"
 #include "Components/PrimitiveComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 
 // Sets default values
 AATGTank::AATGTank()
@@ -24,14 +25,12 @@ AATGTank::AATGTank()
 
 	BoxCompTourelle = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCompTourelle"));
 	BoxCompTourelle->SetupAttachment(BoxCompChassi);
-	BoxCompTourelle->OnComponentHit.AddDynamic(this, &AATGTank::OnHitTourelle);
 
 	MeshCompTourelle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompTourelle"));
 	MeshCompTourelle->SetupAttachment(BoxCompTourelle);
 
 	CapsCompCannon = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsCompCannon"));
 	CapsCompCannon->SetupAttachment(BoxCompTourelle);
-	CapsCompCannon->OnComponentHit.AddDynamic(this, &AATGTank::OnHitCannon);
 
 	MeshCompCannon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompCanon"));
 	MeshCompCannon->SetupAttachment(CapsCompCannon);
@@ -42,6 +41,8 @@ AATGTank::AATGTank()
 	VieChassi = 0.f;
 	VieTourelle = 0.f;
 	VieCannon = 0.f;
+
+	bPatrol = false;
 }
 
 // Called when the game starts or when spawned
@@ -49,7 +50,12 @@ void AATGTank::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BoxCompChassi->OnComponentHit.AddDynamic(this, &AATGTank::OnHitChassi);
+	OriginalRotation = GetActorRotation();
+
+	if (bPatrol)
+	{
+		MoveToNextPatrolPoint();
+	}
 	
 }
 
@@ -65,24 +71,6 @@ void AATGTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
-
-// Appellé quand le chassi est touché
-void AATGTank::OnHitChassi(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Chassi touche"));
-}
-
-// Appellé quand la tourelle est touchée
-void AATGTank::OnHitTourelle(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Tourelle touchee"));
-}
-
-// Appellé quand le cannon est touché
-void AATGTank::OnHitCannon(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Cannon touche"));
 }
 
 /// This is the actor damage handler.   
@@ -142,4 +130,19 @@ float AATGTank::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
 	}
 
 	return ActualDamage;
+}
+
+void AATGTank::MoveToNextPatrolPoint()
+{
+		// Assign next patrol point.
+		if (CurrentPatrolPoint == nullptr || CurrentPatrolPoint == SecondPatrolPoint)
+		{
+			CurrentPatrolPoint = FirstPatrolPoint;
+		}
+		else
+		{
+			CurrentPatrolPoint = SecondPatrolPoint;
+		}
+
+		//UAIBlueprintHelperLibrary::SimpleMoveToActor(GetController(), CurrentPatrolPoint);
 }

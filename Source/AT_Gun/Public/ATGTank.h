@@ -50,9 +50,26 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Vie")
 	float VieCannon;
 
+	/* Let the guard go on patrol */
+	UPROPERTY(EditInstanceOnly, Category = "AI")
+	bool bPatrol;
+
+	/* First of two patrol points to patrol between */
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta = (EditCondition = "bPatrol"))
+	AActor* FirstPatrolPoint;
+
+	/* Second of two patrol points to patrol between */
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta = (EditCondition = "bPatrol"))
+	AActor* SecondPatrolPoint;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// The current point the actor is either moving to or standing at
+	AActor* CurrentPatrolPoint;
+
+	FRotator OriginalRotation;
 
 public:	
 	// Called every frame
@@ -61,15 +78,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION()
-	void OnHitChassi(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION()
-	void OnHitTourelle(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION()
-	void OnHitCannon(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 	float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+
+	void MoveToNextPatrolPoint();
 
 };
