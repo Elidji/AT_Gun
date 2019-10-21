@@ -20,8 +20,8 @@ AATGAntiTankShell::AATGAntiTankShell()
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
-	//CollisionComp->SetCollisionProfileName("Projectile");
-	//CollisionComp->OnComponentHit.AddDynamic(this, &AATGAntiTankShell::OnHit);	// set up a notification for when this component hits something blocking
+	CollisionComp->SetCollisionProfileName("Projectile");
+	CollisionComp->OnComponentHit.AddDynamic(this, &AATGAntiTankShell::OnHit);	// set up a notification for when this component hits something blocking
 	RootComponent = CollisionComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
@@ -38,6 +38,7 @@ AATGAntiTankShell::AATGAntiTankShell()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
 }
 
 // Called when the game starts or when spawned
@@ -61,7 +62,6 @@ void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("L'obus a touché quelque chose"));
 
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		if (PlayerController)
@@ -78,6 +78,16 @@ void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 			}
 		}
 		
+		// A l'impact jouer une explosion
+		ExplosionTransform.SetLocation(Hit.ImpactPoint);
+		//UE_LOG(LogTemp, Warning, TEXT("L'obus a touché quelque chose ici : %s"), ExplosionTransform.GetLocation().X);
+		if (ExplosionParticule)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Spawn explosion"));
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticule, ExplosionTransform, false);
+		}
+		UE_LOG(LogTemp, Warning, TEXT("apres spawn explosion"));
+
 		Destroy();
 	}
 }

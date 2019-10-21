@@ -91,6 +91,7 @@ float AATGTank::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
 		{
 			if (ActualDamage > 0.f)
 			{
+				//UE_LOG(LogTemp, Warning, TEXT("Chassi touche"));
 				VieChassi -= ActualDamage;
 			}
 			// If the damage depletes our health set our lifespan to zero - which will destroy the actor  
@@ -103,6 +104,7 @@ float AATGTank::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
 		{
 			if (ActualDamage > 0.f)
 			{
+				//UE_LOG(LogTemp, Warning, TEXT("Tourelle touche"));
 				VieTourelle -= ActualDamage;
 			}
 			// If the damage depletes our health set our lifespan to zero - which will destroy the component  
