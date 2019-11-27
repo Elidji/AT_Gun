@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ATGAntiTankShell.h"
 #include "Public/TimerManager.h"
 
@@ -75,11 +76,18 @@ void AATGAntiTankGun::Fire()
 
 		FVector SpawnLocation = ArrowCanonDirection->GetComponentLocation();
 		FRotator SpawnRotation = ArrowCanonDirection->GetComponentRotation();
+		FVector Location = GetActorLocation();
 
 		if (World && bCanFire)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Tentative de spawn obus"));
 			World->SpawnActor<AATGAntiTankShell>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+			// Son du tir
+			if (ShotSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(World, ShotSound, Location);
+			}
 
 			// Une fois que l'obus a été tiré on démarre un timer pour le temps de rechargement.
 			World->GetTimerManager().SetTimer(ReloadTimeHandle, this, &AATGAntiTankGun::SetCanFireTrue, ReloadTime);

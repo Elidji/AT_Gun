@@ -10,6 +10,7 @@ class UStaticMeshComponent;
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystem;
+class USoundBase;
 
 UCLASS()
 class AT_GUN_API AATGAntiTankShell : public AActor
@@ -35,13 +36,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
 	UParticleSystem* ExplosionParticule;
 
-
+	/** Son d'explosion */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
-	FTransform ExplosionTransform;
+	USoundBase* ExplosionSound;
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile")
+	FTransform ExplosionTransform;
 
 public:	
 	// Called every frame

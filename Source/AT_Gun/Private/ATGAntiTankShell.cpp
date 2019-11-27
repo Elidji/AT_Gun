@@ -38,7 +38,6 @@ AATGAntiTankShell::AATGAntiTankShell()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
-
 }
 
 // Called when the game starts or when spawned
@@ -78,13 +77,18 @@ void AATGAntiTankShell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 			}
 		}
 		
-		// A l'impact jouer une explosion
+		// A l'impact jouer une explosion avec le son
+	
 		ExplosionTransform.SetLocation(Hit.ImpactPoint);
-		//UE_LOG(LogTemp, Warning, TEXT("L'obus a touché quelque chose ici : %s"), ExplosionTransform.GetLocation().X);
-		if (ExplosionParticule)
+		UWorld* World = GetWorld();
+		if (World && ExplosionParticule && ExplosionSound)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Spawn explosion"));
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticule, ExplosionTransform, false);
+			// Effet de particule
+			UGameplayStatics::SpawnEmitterAtLocation(World, ExplosionParticule, ExplosionTransform, false);
+
+			// Son
+			UGameplayStatics::PlaySoundAtLocation(World, ExplosionSound, ExplosionTransform.GetLocation());
 		}
 		UE_LOG(LogTemp, Warning, TEXT("apres spawn explosion"));
 

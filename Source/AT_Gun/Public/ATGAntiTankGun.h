@@ -33,6 +33,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ArrowComponent")
 	UArrowComponent* ArrowCanonDirection;
 
+	/** Son du tir */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sound")
+	USoundBase* ShotSound;
+
 private:
 
 	bool bCanFire;

@@ -82,3 +82,7 @@ DerivedDataCache/*
 # Explosions pack
 Content/Explosions/*
 Content/IBFPSAmmo/*
+
+Content/FPS_Weapon_Bundle/*
+Content/ProSoundCollection_v1_3/*
+Content/ProSoundCollection_v1_3_MONO/*

@@ -5,6 +5,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+
+#define COLLISION_WEAPON		ECC_GameTraceChannel1
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -12,11 +15,28 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
 	// Create a CameraComponent	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetCapsuleComponent());
 	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
+
+	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
+	PlayerMesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PlayerMesh1P"));
+	PlayerMesh1P->SetOnlyOwnerSee(true);				// Set so only owner can see mesh
+	PlayerMesh1P->SetupAttachment(CameraComponent);	// Attach mesh to FirstPersonCameraComponent
+	PlayerMesh1P->bCastDynamicShadow = false;			// Disallow mesh to cast dynamic shadows
+	PlayerMesh1P->CastShadow = false;				// Disallow mesh to cast other shadows
+
+	// Create a gun mesh component
+	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	FP_Gun->SetOnlyOwnerSee(true);			// Only the owning player will see this mesh
+	FP_Gun->bCastDynamicShadow = false;		// Disallow mesh to cast dynamic shadows
+	FP_Gun->CastShadow = false;			// Disallow mesh to cast other shadows
+	FP_Gun->SetupAttachment(PlayerMesh1P, TEXT("GripPoint"));
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +59,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -63,4 +84,16 @@ void APlayerCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+FHitResult APlayerCharacter::GrabTrace(const FVector& StartTrace, const FVector& EndTrace) const
+{
+	// Perform trace to retrieve hit info
+	//FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(WeaponTrace), true, Instigator);
+	//TraceParams.bReturnPhysicalMaterial = true;
+
+	FHitResult Hit(ForceInit);
+	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_Pawn);
+
+	return Hit;
 }
