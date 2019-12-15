@@ -8,6 +8,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "ATGAntiTankGun.h"
+#include "ATGPlayerController.h"
 #include "DrawDebugHelpers.h"
 
 #define COLLISION_WEAPON		ECC_GameTraceChannel1
@@ -103,15 +104,26 @@ void APlayerCharacter::Interact()
 
 	GetController()->GetPlayerViewPoint(PlayerLocation, PlayerRotation);
 
+	// Calcul du point de fin pour l'intéraction
 	InteractionEnd = PlayerLocation + PlayerRotation.Vector() * InteractionDistance;
 
 	HitResult = Trace(PlayerLocation, InteractionEnd);
 	if (HitResult.bBlockingHit)
 	{
+		// Si la trace a touché quelquechose on vérifie si il s'agit d'un antitank gun
 		AATGAntiTankGun* AntiTankGun = Cast<AATGAntiTankGun>(HitResult.GetActor());
 		if (AntiTankGun)
 		{
-			GetController()->Possess(AntiTankGun);
+			// Si c'est un antitank gun alors on en prend le controlle après avoir vérifier si le playercontroller est le bon
+			AATGPlayerController* PlayerController = Cast<AATGPlayerController>(GetController());
+			if (PlayerController)
+			{
+				PlayerController->BecomeAntiTankGun(AntiTankGun);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Mauvais PlayerController défini !"));
+			}
 		}
 	}
 }
@@ -125,6 +137,8 @@ FHitResult APlayerCharacter::Trace(const FVector& StartTrace, const FVector& End
 	FHitResult Hit(ForceInit);
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_Visibility);
 
+
+	// Traçage de la ligne de debug si actif
 	if (bTraceDebugLine)
 	{
 		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 2.0f, '\000', 7.f);

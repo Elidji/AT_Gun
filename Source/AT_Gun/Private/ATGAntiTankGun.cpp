@@ -11,6 +11,7 @@
 #include "ATGAntiTankShell.h"
 #include "Public/TimerManager.h"
 #include "PlayerCharacter.h"
+#include "ATGPlayerController.h"
 
 // Sets default values
 AATGAntiTankGun::AATGAntiTankGun()
@@ -21,7 +22,7 @@ AATGAntiTankGun::AATGAntiTankGun()
 	// Create a CameraComponent	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetCapsuleComponent());
-	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
+	CameraComponent->SetRelativeLocation(FVector(0, 0, BaseEyeHeight)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
 	MeshCompProtection = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshCompProtection"));
@@ -110,5 +111,13 @@ void AATGAntiTankGun::SetCanFireTrue()
 
 void AATGAntiTankGun::GetOut()
 {
-
+	AATGPlayerController* PlayerController = Cast<AATGPlayerController>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->PossessPreviousPawn();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Mauvais PlayerController défini !"));
+	}
 }

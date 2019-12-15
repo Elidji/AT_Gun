@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "ATGPlayerController.generated.h"
 
+class AATGAntiTankGun;
+
 /**
  * 
  */
@@ -14,4 +16,14 @@ class AT_GUN_API AATGPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+protected:
+	APawn* PreviousPawn;
+
+public:
+
+	/** Function to posses AntiTank Gun and save previous Pawn*/
+	void BecomeAntiTankGun(AATGAntiTankGun* AntiTankGun);
+
+	/** Function to retake control of the previous Pawn */
+	void PossessPreviousPawn();
 };
