@@ -66,4 +66,5 @@ public:
 	void Fire();
 
 	void SetCanFireTrue();
+	void GetOut();
 };

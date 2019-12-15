@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ATGAntiTankShell.h"
 #include "Public/TimerManager.h"
+#include "PlayerCharacter.h"
 
 // Sets default values
 AATGAntiTankGun::AATGAntiTankGun()
@@ -57,6 +58,7 @@ void AATGAntiTankGun::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AATGAntiTankGun::Fire);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AATGAntiTankGun::GetOut);
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
@@ -106,3 +108,7 @@ void AATGAntiTankGun::SetCanFireTrue()
 	bCanFire = true;
 }
 
+void AATGAntiTankGun::GetOut()
+{
+
+}

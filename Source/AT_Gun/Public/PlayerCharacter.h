@@ -40,6 +40,17 @@ protected:
 	/** Handles strafing movement, left and right */
 	void MoveRight(float Val);
 
+	/** Handles strafing movement, left and right */
+	void Interact();
+
+	/** Distance d'interaction */
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	float InteractionDistance;
+
+	/** Show the debug line */
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	bool bTraceDebugLine;
+
 	/*
 	 * Performs a trace between two points
 	 *
@@ -47,7 +58,7 @@ protected:
 	 * @param	EndTrac		Trace end point
 	 * @returns FHitResult returns a struct containing trace result - who/what the trace hit etc.
 	 */
-	FHitResult GrabTrace(const FVector& StartTrace, const FVector& EndTrace) const;
+	FHitResult Trace(const FVector& StartTrace, const FVector& EndTrace) const;
 
 public:	
 	// Called every frame

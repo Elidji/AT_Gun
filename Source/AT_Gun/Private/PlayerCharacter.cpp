@@ -6,6 +6,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "ATGAntiTankGun.h"
+#include "DrawDebugHelpers.h"
 
 #define COLLISION_WEAPON		ECC_GameTraceChannel1
 
@@ -21,7 +24,7 @@ APlayerCharacter::APlayerCharacter()
 	// Create a CameraComponent	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetCapsuleComponent());
-	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
+	CameraComponent->SetRelativeLocation(FVector(0, 0, BaseEyeHeight)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
@@ -37,6 +40,9 @@ APlayerCharacter::APlayerCharacter()
 	FP_Gun->bCastDynamicShadow = false;		// Disallow mesh to cast dynamic shadows
 	FP_Gun->CastShadow = false;			// Disallow mesh to cast other shadows
 	FP_Gun->SetupAttachment(PlayerMesh1P, TEXT("GripPoint"));
+
+	InteractionDistance = 200.f;
+	bTraceDebugLine = false;
 }
 
 // Called when the game starts or when spawned
@@ -66,6 +72,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::Interact);
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -86,14 +94,46 @@ void APlayerCharacter::MoveRight(float Value)
 	}
 }
 
-FHitResult APlayerCharacter::GrabTrace(const FVector& StartTrace, const FVector& EndTrace) const
+void APlayerCharacter::Interact()
+{
+	FVector PlayerLocation;
+	FRotator PlayerRotation;
+	FVector InteractionEnd;
+	FHitResult HitResult;
+
+	GetController()->GetPlayerViewPoint(PlayerLocation, PlayerRotation);
+
+	InteractionEnd = PlayerLocation + PlayerRotation.Vector() * InteractionDistance;
+
+	HitResult = Trace(PlayerLocation, InteractionEnd);
+	if (HitResult.bBlockingHit)
+	{
+		AATGAntiTankGun* AntiTankGun = Cast<AATGAntiTankGun>(HitResult.GetActor());
+		if (AntiTankGun)
+		{
+			GetController()->Possess(AntiTankGun);
+		}
+	}
+}
+
+FHitResult APlayerCharacter::Trace(const FVector& StartTrace, const FVector& EndTrace) const
 {
 	// Perform trace to retrieve hit info
 	//FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(WeaponTrace), true, Instigator);
 	//TraceParams.bReturnPhysicalMaterial = true;
 
 	FHitResult Hit(ForceInit);
-	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_Pawn);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_Visibility);
+
+	if (bTraceDebugLine)
+	{
+		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 2.0f, '\000', 7.f);
+
+		if (bHit)
+		{
+			DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(5), FColor::Orange, false, 2.f);
+		}
+	}
 
 	return Hit;
 }
