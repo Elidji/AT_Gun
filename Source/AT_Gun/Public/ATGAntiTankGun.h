@@ -41,7 +41,6 @@ private:
 
 	bool bCanFire;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Timer")
 	FTimerHandle ReloadTimeHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Timer")
