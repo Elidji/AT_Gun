@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "ATGWeapon.generated.h"
 
+class AATGAntiTankShell;
+class UArrowComponent;
+
 UCLASS()
 class AT_GUN_API AATGWeapon : public AActor
 {
@@ -27,12 +30,30 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sons")
 	USoundBase* FireSound;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ArrowComponent")
+	UArrowComponent* ArrowCanonDirection;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AATGAntiTankShell> ProjectileClass;
+
+	bool bCanFire;
+
+	FTimerHandle ReloadTimeHandle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Timer")
+	float ReloadTime;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void Fire();
+
+	void SetCanFireTrue();
 
 };
