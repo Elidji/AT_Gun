@@ -44,10 +44,6 @@ AFP_FirstPersonCharacter::AFP_FirstPersonCharacter()
 	FP_Gun->CastShadow = false;			// Disallow mesh to cast other shadows
 	FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
 
-	// Set weapon damage and range
-	WeaponRange = 5000.0f;
-	WeaponDamage = 500000.0f;
-
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 30.0f, 10.0f);
 
@@ -69,12 +65,6 @@ void AFP_FirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	
-	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFP_FirstPersonCharacter::OnFire);
-	
-	// Attempt to enable touch screen movement
-	TryEnableTouchscreenMovement(PlayerInputComponent);
-
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AFP_FirstPersonCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AFP_FirstPersonCharacter::MoveRight);
@@ -88,130 +78,6 @@ void AFP_FirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AFP_FirstPersonCharacter::LookUpAtRate);
 }
 
-void AFP_FirstPersonCharacter::OnFire()
-{
-	// Play a sound if there is one
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// Try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-
-	// Now send a trace from the end of our gun to see if we should hit anything
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	
-	FVector ShootDir = FVector::ZeroVector;
-	FVector StartTrace = FVector::ZeroVector;
-
-	if (PlayerController)
-	{
-		// Calculate the direction of fire and the start location for trace
-		FRotator CamRot;
-		PlayerController->GetPlayerViewPoint(StartTrace, CamRot);
-		ShootDir = CamRot.Vector();
-
-		// Adjust trace so there is nothing blocking the ray between the camera and the pawn, and calculate distance from adjusted start
-		StartTrace = StartTrace + ShootDir * ((GetActorLocation() - StartTrace) | ShootDir);
-	}
-
-	// Calculate endpoint of trace
-	const FVector EndTrace = StartTrace + ShootDir * WeaponRange;
-
-	// Check for impact
-	const FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
-
-	// Deal with impact
-	AActor* DamagedActor = Impact.GetActor();
-	UPrimitiveComponent* DamagedComponent = Impact.GetComponent();
-
-	// If we hit an actor, with a component that is simulating physics, apply an impulse
-	if ((DamagedActor != NULL) && (DamagedActor != this) && (DamagedComponent != NULL) && DamagedComponent->IsSimulatingPhysics())
-	{
-		DamagedComponent->AddImpulseAtLocation(ShootDir * WeaponDamage, Impact.Location);
-	}
-}
-
-
-void AFP_FirstPersonCharacter::BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	// If touch is already pressed check the index. If it is not the same as the current touch assume a second touch and thus we want to fire
-	if (TouchItem.bIsPressed == true)
-	{
-		if( TouchItem.FingerIndex != FingerIndex)
-		{
-			OnFire();			
-		}
-	}
-	else 
-	{
-		// Cache the finger index and touch location and flag we are processing a touch
-		TouchItem.bIsPressed = true;
-		TouchItem.FingerIndex = FingerIndex;
-		TouchItem.Location = Location;
-		TouchItem.bMoved = false;
-	}
-}
-
-void AFP_FirstPersonCharacter::EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	// If we didn't record the start event do nothing, or this is a different index
-	if((TouchItem.bIsPressed == false) || ( TouchItem.FingerIndex != FingerIndex) )
-	{
-		return;
-	}
-
-	// If the index matches the start index and we didn't process any movement we assume we want to fire
-	if ((FingerIndex == TouchItem.FingerIndex) && (TouchItem.bMoved == false))
-	{
-		OnFire();
-	}
-
-	// Flag we are no longer processing the touch event
-	TouchItem.bIsPressed = false;
-}
-
-void AFP_FirstPersonCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	// If we are processing a touch event and this index matches the initial touch event process movement
-	if ((TouchItem.bIsPressed == true) && (TouchItem.FingerIndex == FingerIndex))
-	{
-		if (GetWorld() != nullptr)
-		{
-			UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport();
-			if (ViewportClient != nullptr)
-			{
-				FVector MoveDelta = Location - TouchItem.Location;
-				FVector2D ScreenSize;
-				ViewportClient->GetViewportSize(ScreenSize);
-				FVector2D ScaledDelta = FVector2D(MoveDelta.X, MoveDelta.Y) / ScreenSize;
-				if (FMath::Abs(ScaledDelta.X) >= (4.0f / ScreenSize.X))
-				{
-					TouchItem.bMoved = true;
-					float Value = ScaledDelta.X * BaseTurnRate;
-					AddControllerYawInput(Value);
-				}
-				if (FMath::Abs(ScaledDelta.Y) >= (4.0f / ScreenSize.Y))
-				{
-					TouchItem.bMoved = true;
-					float Value = ScaledDelta.Y* BaseTurnRate;
-					AddControllerPitchInput(Value);
-				}
-				TouchItem.Location = Location;
-			}
-			TouchItem.Location = Location;
-		}
-	}
-}
 
 void AFP_FirstPersonCharacter::MoveForward(float Value)
 {
@@ -254,11 +120,4 @@ FHitResult AFP_FirstPersonCharacter::WeaponTrace(const FVector& StartTrace, cons
 	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, COLLISION_WEAPON, TraceParams);
 
 	return Hit;
-}
-
-void AFP_FirstPersonCharacter::TryEnableTouchscreenMovement(UInputComponent* PlayerInputComponent)
-{
-	PlayerInputComponent->BindTouch(EInputEvent::IE_Pressed, this, &AFP_FirstPersonCharacter::BeginTouch);
-	PlayerInputComponent->BindTouch(EInputEvent::IE_Released, this, &AFP_FirstPersonCharacter::EndTouch);
-	PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &AFP_FirstPersonCharacter::TouchUpdate);	
 }

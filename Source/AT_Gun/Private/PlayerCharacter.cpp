@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "ATGAntiTankGun.h"
 #include "ATGPlayerController.h"
+#include "ATGWeapon.h"
 #include "DrawDebugHelpers.h"
 
 #define COLLISION_WEAPON		ECC_GameTraceChannel1
@@ -36,11 +37,11 @@ APlayerCharacter::APlayerCharacter()
 	PlayerMesh1P->CastShadow = false;				// Disallow mesh to cast other shadows
 
 	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->SetOnlyOwnerSee(true);			// Only the owning player will see this mesh
-	FP_Gun->bCastDynamicShadow = false;		// Disallow mesh to cast dynamic shadows
-	FP_Gun->CastShadow = false;			// Disallow mesh to cast other shadows
-	FP_Gun->SetupAttachment(PlayerMesh1P, TEXT("GripPoint"));
+// 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+// 	FP_Gun->SetOnlyOwnerSee(true);			// Only the owning player will see this mesh
+// 	FP_Gun->bCastDynamicShadow = false;		// Disallow mesh to cast dynamic shadows
+// 	FP_Gun->CastShadow = false;			// Disallow mesh to cast other shadows
+// 	FP_Gun->SetupAttachment(PlayerMesh1P, TEXT("GripPoint"));
 
 	InteractionDistance = 200.f;
 	bTraceDebugLine = false;
@@ -50,6 +51,13 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	NewLocation = PlayerMesh1P->GetSocketLocation("GripPoint");
+
+	FActorSpawnParameters SpawnInfo;
+	AATGWeapon* Weapon = GetWorld()->SpawnActor<AATGWeapon>(ToSpawn, FVector(0.f,0.f,0.f), FRotator::ZeroRotator);
+
+	Weapon->AttachToComponent(PlayerMesh1P, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("GripPoint")));
 	
 }
 

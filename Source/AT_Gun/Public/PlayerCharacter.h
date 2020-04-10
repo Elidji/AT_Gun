@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USkeletalMeshComponent;
+class AATGWeapon;
 
 UCLASS()
 class AT_GUN_API APlayerCharacter : public ACharacter
@@ -27,8 +28,16 @@ public:
 	USkeletalMeshComponent* PlayerMesh1P;
 
 	/** Gun mesh */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	USkeletalMeshComponent* FP_Gun;
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//USkeletalMeshComponent* FP_Gun;
+
+	/** Gun class to spawn */
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	TSubclassOf<AATGWeapon> ToSpawn;
+
+	/** First person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	FVector NewLocation;
 
 protected:
 	// Called when the game starts or when spawned

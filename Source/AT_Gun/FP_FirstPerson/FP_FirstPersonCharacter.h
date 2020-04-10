@@ -11,6 +11,7 @@ class UCameraComponent;
 class USkeletalMeshComponent;
 class USoundBase;
 class UAnimMontage;
+class AATGWeapon;
 
 UCLASS(config=Game)
 class AFP_FirstPersonCharacter : public ACharacter
@@ -44,29 +45,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector GunOffset;
 
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
-	USoundBase* FireSound;
-
-	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	UAnimMontage* FireAnimation;
-
-	/* This is when calculating the trace to determine what the weapon has hit */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float WeaponRange;
-	
-	/* This is multiplied by the direction vector when the weapon trace hits something to apply velocity to the component that is hit */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float WeaponDamage;
+	AATGWeapon* Weapon;
 
 protected:
-
-	/** Handler for a touch input beginning. */
-	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
-
-	/** Fires a virtual projectile. */
-	void OnFire();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -98,54 +80,7 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
-
-	/** Structure that handles touch data so we can process the various stages of touch. */
-	struct TouchData
-	{
-		TouchData() { bIsPressed = false; Location = FVector::ZeroVector; }
-		bool bIsPressed;
-		ETouchIndex::Type FingerIndex;
-		FVector Location;
-		bool bMoved;
-	};
-
-	/*
-	 * Handle begin touch event.
-	 * Stores the index and location of the touch in a structure
-	 *
-	 * @param	FingerIndex	The touch index
-	 * @param	Location	Location of the touch
-	 */
-	void BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	
-	/*
-	 * Handle end touch event.
-	 * If there was no movement processed this will fire a projectile, otherwise this will reset pressed flag in the touch structure
-	 *
-	 * @param	FingerIndex	The touch index
-	 * @param	Location	Location of the touch
-	 */
-	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
-	
-	/*
-	 * Handle touch update.
-	 * This will update the look position based on the change in touching position
-	 *
-	 * @param	FingerIndex	The touch index
-	 * @param	Location	Location of the touch
-	 */
-	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
-
-	// Structure to handle touch updating
-	TouchData	TouchItem;
-	
-	/* 
-	 * Configures input for touchscreen devices if there is a valid touch interface for doing so 
-	 *
-	 * @param	InputComponent	The input component pointer to bind controls to
-	 * @returns true if touch controls were enabled.
-	 */
-	void TryEnableTouchscreenMovement(UInputComponent* InputComponent);
 
 public:
 	/** Returns Mesh1P subobject **/
